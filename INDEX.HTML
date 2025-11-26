@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CYBER-ACADEMY</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#000;
+      --panel:#0e161b;
+      --accent:#00ff9c;
+      --accent-2:#00cfff;
+      --warn:#ff3b3b;
+      --muted:#8aa39a;
+    }
+    *{box-sizing:border-box}
+    body {
+      margin:0; font-family:'Share Tech Mono', monospace;
+      background: radial-gradient(circle at top left, #013220 0%, #001a10 60%, #000 100%);
+      color:var(--accent); text-shadow:0 0 8px var(--accent);
+    }
+    nav {
+      background:#0a0f12; border-bottom:2px solid var(--accent);
+      box-shadow:0 0 12px var(--accent); padding:10px;
+      display:flex; justify-content:space-between; align-items:center;
+      position:sticky; top:0; z-index:999;
+    }
+    nav a {color:var(--accent); margin:0 10px; text-decoration:none; text-transform:uppercase;}
+    nav a:hover {color:var(--warn); text-shadow:0 0 10px var(--warn);}
+    .section {padding:30px; max-width:1100px; margin:0 auto;}
+    .grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px;}
+    .card {
+      background:var(--panel); border:1px solid var(--accent-2); box-shadow:0 0 15px var(--accent-2);
+      padding:20px; cursor:pointer; transition:transform 0.25s, box-shadow 0.25s, border-color 0.25s; border-radius:10px;
+    }
+    .card:hover {transform:translateY(-4px); border-color:var(--warn); box-shadow:0 0 20px var(--warn);}
+    footer {padding:20px; text-align:center; color:var(--muted);}
+    /* Welcome overlay */
+    #welcome {position:fixed; inset:0; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; color:var(--accent);}
+    #welcome img {width:min(30Svw,1100px); border:9px solid var(--accent); box-shadow:0 0 20px var(--accent); margin-bottom:20px; border-radius:14px;}
+    #welcome button {padding:12px 20px; background:var(--bg); color:var(--accent); border:2px solid var(--accent); cursor:pointer; font-size:18px; border-radius:8px;}
+    #welcome button:hover {background:var(--accent); color:#000;}
+    /* Modal */
+    .modal {display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:10000; align-items:center; justify-content:center; color:var(--accent);}
+    .modal-content {background:var(--panel); padding:20px; border:2px solid var(--accent); box-shadow:0 0 20px var(--accent); width:380px; text-align:center; border-radius:12px;}
+    .modal-content input {width:100%; padding:12px; margin:10px 0; background:#000; color:var(--accent); border:2px solid var(--accent); border-radius:8px;}
+    .modal-content button {padding:10px 18px; background:#000; color:var(--accent); border:2px solid var(--accent); cursor:pointer; border-radius:8px;}
+    .modal-content button:hover {background:var(--accent); color:#000;}
+    .error {color:#ff6b6b; display:none; margin-top:5px;}
+    /* Course modal */
+    #courseModal {display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:10000; align-items:center; justify-content:center; color:var(--accent);}
+    .course-content {background:var(--panel); padding:20px; border:2px solid var(--accent); box-shadow:0 0 20px var(--accent); width:min(90vw,900px); border-radius:12px;}
+    .close {float:right; cursor:pointer; color:var(--warn); font-size:26px;}
+    .video-box video, .video-box iframe {width:100%; max-height:360px; margin-top:10px; border-radius:8px;}
+    .video-box input {width:100%; padding:8px; margin:5px 0; background:#000; color:var(--accent); border:1px solid var(--accent); border-radius:8px;}
+    .video-box button {padding:8px 12px; background:#000; color:var(--accent); border:1px solid var(--accent); cursor:pointer; border-radius:8px;}
+    .video-box button:hover {background:var(--accent); color:#000;}
+    /* Pills */
+    .pill {display:inline-block; padding:8px 14px; border:1px solid var(--accent); margin:6px; cursor:pointer; border-radius:999px; user-select:none;}
+    .pill:hover {background:var(--accent); color:#000;}
+    /* Audio bar */
+    #audioBar {display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+    #bgAudio {width:300px;}
+    /* Profile + certificate */
+    #profileForm input {width:100%; padding:10px; margin:8px 0; background:#000; color:var(--accent); border:1px solid var(--accent); border-radius:8px;}
+    #profileForm button {padding:10px 18px; background:#000; color:var(--accent); border:2px solid var(--accent); cursor:pointer; border-radius:8px;}
+    #profileForm button:hover {background:var(--accent); color:#000;}
+    #certificateCanvas {width:100%; max-width:1000px; border:2px solid var(--accent); box-shadow:0 0 20px var(--accent); margin-top:20px; border-radius:12px;}
+    #downloadCert {padding:10px 18px; background:#000; color:var(--accent); border:2px solid var(--accent); cursor:pointer; border-radius:8px;}
+    #downloadCert:hover {background:var(--accent); color:#000;}
+  </style>
+</head>
+<body>
+
+<!-- Welcome screen -->
+<div id="welcome">
+  <img src="team.jpg" alt="Dasturchilar rasmi">
+  <button id="openLogin">Kirish</button>
+</div>
+
+<!-- Login modal -->
+<div class="modal" id="loginModal">
+  <div class="modal-content">
+    <h3>Kirish</h3>
+    <input id="keyInput" placeholder="Kalit so'z (cybertrio)">
+    <input id="passInput" type="password" placeholder="Parol (cyber2010)">
+    <button id="enterBtn">Kirish</button>
+    <div class="error" id="errorBox">Xato! Kalit so‘z yoki parol noto‘g‘ri.</div>
+  </div>
+</div>
+
+<!-- Navbar -->
+<nav>
+  <div id="audioBar">
+    <strong>CYBER-ACADEMY</strong>
+    <audio id="bgAudio" controls loop>
+      <source src="bg.mp3" type="audio/mpeg">
+      Brauzer audio’ni qo‘llamaydi.
+    </audio>
+  </div>
+  <div>
+    <a href="#home">Asosiy</a>
+    <a href="#courses">Kurslar</a>
+    <a href="#devs">Dasturchilar</a>
+    <a href="#contact">Bog‘lanish</a>
+    <a href="#exams">Testlar</a>
+    <a href="#certificate">Sertifikat</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="section" id="home">
+  <h1>CYBER-ACADEMY — Hacker Muhiti</h1>
+  <p>Kompyuter savodxonligi, Python, CSS, Kiberxavfsizlik kurslari va ko‘proq!</p>
+</header>
+
+<!-- Developers -->
+<section class="section" id="devs">
+  <h2>Dasturchilar</h2>
+  <div class="grid">
+    <div class="card"><img src="sayfiddin.jpg" width="120" style="border-radius:8px"><br><strong>Sayfiddin — Asoschi / White Hat Hacker (etik kiberxavfsizlik)</strong></div>
+    <div class="card"><img src="mehriddin.jpg" width="120" style="border-radius:8px"><br><strong>Mehriddin — Backend Dasturchi</strong></div>
+    <div class="card"><img src="abdulhamid.jpg" width="120" style="border-radius:8px"><br><strong>Abdulhamid — Frontend Dasturchi</strong></div>
+  </div>
+</section>
+
+<!-- Courses -->
+<section class="section" id="courses">
+  <h2>Kurslar</h2>
+  <div class="grid">
+    <div class="card" data-course="savod">Kompyuter Savodxonligi</div>
+    <div class="card" data-course="python">Python Darslari</div>
+    <div class="card" data-course="css">CSS Darslari</div>
+    <div class="card" data-course="security">Kiberxavfsizlik</div>
+    <div class="card" data-course="usb">USB xavfsizligi</div>
+    <div class="card" data-course="math">Matematika darslari</div>
+  </div>
+</section>
+
+<!-- Course modal -->
+<div id="courseModal">
+  <div class="course-content">
+    <span class="close" id="closeCourse">&times;</span>
+    <h3 id="courseTitle"></h3>
+    <div class="video-box">
+      <div id="videos"></div>
+      <input type="text" id="ytLink" placeholder="YouTube yoki umumiy video linkini kiriting">
+      <input type="file" id="fileInput" accept="video/*">
+      <button id="uploadBtn">Yuklash</button>
+      <p style="color:#8aa39a">Maslahat: umumiy ko‘rinishi uchun YouTube/CDN linklardan foydalaning. Fayl videolar qurilmangizda IndexedDB orqali o‘chmaydi.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Exams -->
+<section class="section" id="exams">
+  <h2>Testlar</h2>
+  <p>Fan tanlang (yangi oyna ochiladi):</p>
+  <div>
+    <span class="pill exam-subject" data-subject="savod">Kompyuter Savodxonligi</span>
+    <span class="pill exam-subject" data-subject="python">Python</span>
+    <span class="pill exam-subject" data-subject="css">CSS</span>
+    <span class="pill exam-subject" data-subject="security">Kiberxavfsizlik</span>
+    <span class="pill exam-subject" data-subject="usb">USB xavfsizligi</span>
+    <span class="pill exam-subject" data-subject="math">Matematika</span>
+  </div>
+</section>
+
+<!-- Certificate + Profile form -->
+<section class="section" id="certificate">
+  <h2>Sertifikat</h2>
+  <p>Profilni to‘ldiring: ism, familiya va rasm. Har bir fan bo‘yicha Oson + O‘rta + Qiyin bosqichlardan 70%+ natija olsangiz sertifikat yaratiladi.</p>
+  <form id="profileForm">
+    <input id="firstName" placeholder="Ism" required>
+    <input id="lastName" placeholder="Familiya" required>
+    <input id="profilePhoto" type="file" accept="image/*" required>
+    <button type="submit">Profilni saqlash</button>
+  </form>
+  <canvas id="certificateCanvas" width="1000" height="600"></canvas>
+  <button id="downloadCert" style="display:none;">Sertifikatni yuklab olish</button>
+</section>
+
+<!-- Contact -->
+<section class="section" id="contact">
+  <h2>Bog‘lanish</h2>
+  <p><a href="https://t.me/sahadarkd" target="_blank">Telegram: @sahadarkd</a></p>
+  <p><a href="mailto:sayfiddinsadullayev22@gmail.com">Email: sayfiddinsadullayev22@gmail.com</a></p>
+  <p><a href="tel:+998888543818">Telefon: +998888543818</a></p>
+</section>
+
+<footer>
+  © 2025 CYBER-ACADEMY
+</footer>
+
+<script>
+  // ===== Login =====
+  const welcome = document.getElementById('welcome');
+  const openLogin = document.getElementById('openLogin');
+  const loginModal = document.getElementById('loginModal');
+  const enterBtn = document.getElementById('enterBtn');
+  const keyInput = document.getElementById('keyInput');
+  const passInput = document.getElementById('passInput');
+  const errorBox = document.getElementById('errorBox');
+
+  openLogin.onclick = () => { loginModal.style.display = "flex"; keyInput.focus(); };
+  [keyInput, passInput].forEach(inp=>{
+    inp.addEventListener("keypress", e=>{ if(e.key==="Enter"){ enterBtn.click(); } });
+  });
+  enterBtn.onclick = () => {
+    if (keyInput.value.trim().toLowerCase() === "cybertrio" &&
+        passInput.value.trim() === "cyber2010") {
+      loginModal.style.display = "none";
+      welcome.style.display = "none";
+      location.hash = "#home";
+      const home = document.getElementById("home");
+      if(home){ home.scrollIntoView({behavior:"smooth", block:"start"}); }
+    } else { errorBox.style.display = "block"; }
+  };
+
+  // ===== Background audio autoplay policy helper (optional) =====
+  // document.getElementById('bgAudio').play().catch(()=>{/* user gesture needed */});
+
+  // ===== Videos (links via localStorage + file blobs via IndexedDB) =====
+  const courseCards = document.querySelectorAll('.card[data-course]');
+  const courseModal = document.getElementById('courseModal');
+  const closeCourse = document.getElementById('closeCourse');
+  const courseTitle = document.getElementById('courseTitle');
+  const videosDiv = document.getElementById('videos');
+  const ytLink = document.getElementById('ytLink');
+  const fileInput = document.getElementById('fileInput');
+  const uploadBtn = document.getElementById('uploadBtn');
+
+  let currentCourse = null;
+  const LS_KEY = "CYBER_VIDEOS_LINKS";
+  const courseVideos = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+
+  const IDB_NAME = "CYBER_VIDEOS_DB";
+  const IDB_STORE = "videos";
+  let idb, dbReady = false;
+
+  function openDB(){
+    return new Promise((resolve,reject)=>{
+      const req = indexedDB.open(IDB_NAME, 1);
+      req.onupgradeneeded = (e)=>{
+        const db = e.target.result;
+        if(!db.objectStoreNames.contains(IDB_STORE)){
+          db.createObjectStore(IDB_STORE, { keyPath: "id", autoIncrement: true });
+        }
+      };
+      req.onsuccess = (e)=>{ idb = e.target.result; dbReady = true; resolve(); };
+      req.onerror = ()=>reject(req.error);
+    });
+  }
+  openDB();
+
+  function addFileVideo(course, file){
+    return new Promise((resolve,reject)=>{
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        const blob = new Blob([reader.result], {type: file.type});
+        const tx = idb.transaction(IDB_STORE, "readwrite");
+        const store = tx.objectStore(IDB_STORE);
+        const record = { course, name: file.name, type: file.type, blob };
+        const addReq = store.add(record);
+        addReq.onsuccess = ()=>resolve(addReq.result);
+        addReq.onerror = ()=>reject(addReq.error);
+      };
+      reader.onerror = ()=>reject(reader.error);
+      reader.readAsArrayBuffer(file);
+    });
+  }
+  function getCourseFiles(course){
+    return new Promise((resolve,reject)=>{
+      const tx = idb.transaction(IDB_STORE, "readonly");
+      const store = tx.objectStore(IDB_STORE);
+      const req = store.getAll();
+      req.onsuccess = ()=>{ resolve(req.result.filter(r=>r.course===course)); };
+      req.onerror = ()=>reject(req.error);
+    });
+  }
+  function normalizeYouTube(link){
+    const idMatch = link.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+    if (idMatch) return "https://www.youtube.com/embed/" + idMatch[1];
+    return link;
+  }
+
+  courseCards.forEach(card=>{
+    card.addEventListener('click', async ()=>{
+      currentCourse = card.dataset.course;
+      courseTitle.textContent = card.textContent + " kursi";
+      videosDiv.innerHTML = "<p>Videolar yuklanmoqda...</p>";
+
+      // Render saved links
+      const links = courseVideos[currentCourse] || [];
+      videosDiv.innerHTML = "";
+      links.forEach(src=>{
+        if (/youtube\.com|youtu\.be/.test(src)) {
+          const iframe = document.createElement('iframe');
+          iframe.width = "100%"; iframe.height = "360";
+          iframe.src = normalizeYouTube(src);
+          iframe.setAttribute("frameborder","0");
+          iframe.setAttribute("allow","accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
+          iframe.allowFullscreen = true;
+          videosDiv.appendChild(iframe);
+        } else {
+          const vid = document.createElement('video');
+          vid.src = src; vid.controls = true;
+          videosDiv.appendChild(vid);
+        }
+      });
+
+      // Render file videos from IndexedDB
+      if (dbReady) {
+        const files = await getCourseFiles(currentCourse);
+        files.forEach(rec=>{
+          const url = URL.createObjectURL(rec.blob);
+          const vid = document.createElement('video');
+          vid.src = url; vid.controls = true;
+          videosDiv.appendChild(vid);
+        });
+      } else {
+        const p = document.createElement('p');
+        p.textContent = "Fayl saqlash xizmati tayyorlanmoqda...";
+        videosDiv.appendChild(p);
+      }
+
+      if (videosDiv.children.length === 0) {
+        videosDiv.innerHTML = "<p>Hozircha video yo‘q. Yuklash mumkin.</p>";
+      }
+      courseModal.style.display = "flex";
+    });
+  });
+  closeCourse.onclick = ()=>{ courseModal.style.display="none"; };
+
+  uploadBtn.onclick = async ()=>{
+    if(!currentCourse) return;
+    const link = ytLink.value.trim();
+    if(link!==""){
+      courseVideos[currentCourse] = courseVideos[currentCourse] || [];
+      courseVideos[currentCourse].push(link);
+      localStorage.setItem(LS_KEY, JSON.stringify(courseVideos));
+      ytLink.value = "";
+    } else if(fileInput.files[0]) {
+      const f = fileInput.files[0];
+      try { await openDB(); await addFileVideo(currentCourse, f); fileInput.value=""; }
+      catch(e){ alert("Videoni saqlashda xatolik. Qayta urinib ko‘ring."); }
+    }
+    // re-render
+    const fakeCard = document.querySelector(`.card[data-course="${currentCourse}"]`);
+    if (fakeCard) fakeCard.click();
+  };
+
+  // ===== Exams =====
+  const SUBJECTS = {
+    savod: "Kompyuter Savodxonligi",
+    python: "Python",
+    css: "CSS",
+    security: "Kiberxavfsizlik",
+    usb: "USB xavfsizligi",
+    math: "Matematika"
+  };
+  const DIFFS = ["easy","medium","hard"];
+
+  const QUESTION_BANK = {};
+  Object.keys(SUBJECTS).forEach(sub=>{
+    QUESTION_BANK[sub] = makeQuestions(sub);
+  });
+
+  function makeQuestions(subject){
+    const questions = [];
+    // 90 questions: 30 per difficulty
+    for (let i=0;i<90;i++){
+      const diff = i<30 ? "easy" : i<60 ? "medium" : "hard";
+      questions.push({
+        id: subject+"_"+i,
+        subject,
+        difficulty: diff,
+        text: questionText(subject, diff, i),
+        options: questionOptions(subject, diff, i),
+        answerIndex: correctIndex(subject, diff, i)
+      });
+    }
+    return questions;
+  }
+
+  // Contentful question generator (short but meaningful demo set)
+  function questionText(sub, diff, i){
+    const S = SUBJECTS[sub];
+    const D = diff==="easy"?"Oson":diff==="medium"?"O‘rta":"Qiyin";
+    // A few sample types per subject
+    const idx = i%6;
+    const templates = {
+      savod: [
+        "Operatsion tizim vazifalaridan qaysi biri to‘g‘ri?",
+        "Fayl kengaytmasi nimani bildiradi?",
+        "Brauzer nima uchun ishlatiladi?",
+        "Qisqa tugmalar: Ctrl+C qanday amal?",
+        "Bulutli saqlash xizmatining afzalligi?",
+        "Zaxira nusxa nima uchun kerak?"
+      ],
+      python: [
+        "print() funksiyasi nima qiladi?",
+        "List va tuple farqi nimada?",
+        "if/elif/else blokining vazifasi?",
+        "for siklining maqsadi?",
+        "len() qaytaradi?",
+        "dict’da kalit-topshiriq juftligi nimani anglatadi?"
+      ],
+      css: [
+        "color xossasi nimani o‘rnatadi?",
+        "class selektori qanday yoziladi?",
+        "flex-container qaysi xossa bilan yoqiladi?",
+        "margin va padding farqi?",
+        "responsive dizayn uchun media queries?",
+        "position: absolute nimaga nisbatan joylashadi?"
+      ],
+      security: [
+        "Phishing nima?",
+        "Ikki faktorli tasdiqlash (2FA) maqsadi?",
+        "Strong parol xususiyati?",
+        "Malwaredan himoya qilish usuli?",
+        "HTTPS nimani ta’minlaydi?",
+        "Social engineeringdan saqlanish yo‘li?"
+      ],
+      usb: [
+        "USB xavfsizligi deganda nima tushuniladi?",
+        "Autorun xatarini kamaytirish usuli?",
+        "Air-gapped tizim nima?",
+        "USB orqali malware tarqalishining oldini olish?",
+        "USB siyosati (policy) nimani belgilaydi?",
+        "Shifrlangan USB afzalligi?"
+      ],
+      math: [
+        "2+3·4 qiymati?",
+        "x toping: x+5=12",
+        "Tenglama ildizi: x^2=16",
+        "Prosent: 200 ning 15%?",
+        "Perimetr: kvadrat tomoni 5 bo‘lsa?",
+        "Kasr: 3/4 + 1/2?"
+      ]
+    };
+    return `${S} (${D}) — ${templates[sub][idx]}`;
+  }
+  function questionOptions(sub, diff, i){
+    const idx = i%6;
+    const opts = {
+      savod: [
+        ["Resurslarni boshqaradi","Matn teradi","Rasm chizadi","Faqat internetga ulanadi"],
+        ["Fayl turini bildiradi","Fayl hajmini bildiradi","Operatsion tizimni bildiradi","Kompyuter nomini bildiradi"],
+        ["Veb sahifalarni ko‘rish","Diagramma chizish","Kod kompilyatsiya","Qurilma drayverini o‘rnatish"],
+        ["Nusxa olish","Kesish","Qo‘yish","Qidirish"],
+        ["Istalgan joydan kirish","Kompyuter tezligini oshiradi","Elektr sarfini kamaytiradi","Monitor sifatini oshiradi"],
+        ["Ma’lumotni tiklash","Internetga ulanish","Qo‘ng‘iroq qilish","Rasmni tahrirlash"]
+      ],
+      python: [
+        ["Konsolga chiqaradi","Fayl yaratadi","Tarmoqga ulaydi","Kod formatlaydi"],
+        ["List o‘zgartiriladi, tuple o‘zgarmas","List o‘zgarmas, tuple o‘zgartiriladi","Ikkalasi ham o‘zgarmas","Ikkalasi ham o‘zgartiriladi"],
+        ["Shartlarni tekshiradi","Fayl o‘qiydi","Modul o‘rnatadi","RAM boshqaradi"],
+        ["Takroriy bajaradi","Tasodifiy son hosil qiladi","Tizim vaqtini o‘zgartiradi","GUI ochadi"],
+        ["Uzunlikni qaytaradi","Sonni kvadrat qiladi","Matnni katta harfga o‘tkazadi","Modul nomini chiqaradi"],
+        ["Kalitlar noyob","Kalitlar takror","Faqat ro‘yxat saqlaydi","Faqat son saqlaydi"]
+      ],
+      css: [
+        ["Matn rangi","Fon rangi","Chegara qalinligi","Satr balandligi"],
+        [".className","class:Name","@className","#className"],
+        ["display:flex","flex:true","flexbox:on","container:flex"],
+        ["Tashqi bo‘shliq vs ichki bo‘shliq","Rang vs shrift","Kenglik vs balandlik","Satr vs blok"],
+        ["Ekran o‘lchamiga moslashish","Rang palitrasini o‘zgartirish","Serverga ulanish","Ma’lumot saqlash"],
+        ["Eng yaqin joylashgan konteynerga","Butun sahifaga","Brauzer oynasiga","Oxirgi elementga"]
+      ],
+      security: [
+        ["Soxta xabar bilan aldash","Parolni shifrlash","Serverni yangilash","Faylni zaxiralash"],
+        ["Xavfsizlikni kuchaytiradi","Internet tezligini oshiradi","RAMni tozalaydi","Printerni sozlaydi"],
+        ["Uzun, murakkab va noyob","Qisqa va oson","Faqat raqamlardan","Hamma joyda bir xil"],
+        ["Yangilash va antivirus","Wi-Fi’ni o‘chirish","Monitorni o‘zgartirish","Kamera yopish"],
+        ["Shifrlangan aloqa","Tezroq uzatish","Parolsiz kirish","IP manzilni yashirish"],
+        ["Manbani tekshirish","Parolni yozib qo‘yish","Har doim ochish","Begona faylni ishga tushirish"]
+      ],
+      usb: [
+        ["USB orqali xatarlarni kamaytirish","USBni tezlashtirish","Yangi port qo‘shish","Signal kuchaytirish"],
+        ["Autorunni o‘chirish","Autorunni yoqish","Fayl nomini uzaytirish","Portni almashtirish"],
+        ["Tarmoqqa ulanmagan tizim","Tez internet","Mobil tarmoq","Wi-Fi kuchaytirgich"],
+        ["Skaner va siyosatlar","Yangi tema","Ikki monitor","Printer haydovchisi"],
+        ["Qoidalar va cheklovlar","Rang sozlamalari","Ovoz balandligi","Ekran yorqinligi"],
+        ["Ma’lumot himoyasi","Batareya kuchi","Port soni","Ekran sifati"]
+      ],
+      math: [
+        ["14","20","10","9"],
+        ["7","12","5","17"],
+        ["±4","±8","±2","0"],
+        ["30","15","25","40"],
+        ["20","10","5","25"],
+        ["5/4","1/4","3/8","7/8"]
+      ]
+    };
+    return opts[sub][idx];
+  }
+  function correctIndex(sub, diff, i){
+    // Always the first option is correct in our sets above
+    return 0;
+  }
+
+  const subjectButtons = document.querySelectorAll('.exam-subject');
+  subjectButtons.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const subject = btn.dataset.subject;
+      const win = window.open("", "_blank", "width=1000,height=800");
+      if (!win) { alert("Popup oynalar bloklangan. Ruxsat bering."); return; }
+      win.document.write(`
+        <html><head>
+          <title>${SUBJECTS[subject]} — Testlar</title>
+          <meta charset="UTF-8">
+          <style>
+            body {background:#000; color:#00ff9c; font-family:'Share Tech Mono', monospace; padding:20px;}
+            .question {margin:18px 0; padding:12px; border:1px dashed #00cfff; border-radius:8px;}
+            .answers label {display:block; margin:6px 0;}
+            .pill {display:inline-block; padding:8px 14px; border:1px solid #00ff9c; margin:6px; cursor:pointer; border-radius:999px;}
+            .pill:hover {background:#00ff9c; color:#000;}
+            button {padding:10px 18px; background:#000; color:#00ff9c; border:1px solid #00ff9c; cursor:pointer; border-radius:8px;}
+            button:hover {background:#00ff9c; color:#000;}
+            #certCanvas {border:2px solid #00ff9c; margin-top:20px; border-radius:12px;}
+          </style>
+        </head>
+        <body>
+          <h2>${SUBJECTS[subject]} — bosqichni tanlang</h2>
+          <div>
+            <span class="pill" id="easyBtn">Oson</span>
+            <span class="pill" id="medBtn">O‘rta</span>
+            <span class="pill" id="hardBtn">Qiyin</span>
+          </div>
+          <div id="examBox" style="margin-top:16px;"></div>
+          <canvas id="certCanvas" width="1000" height="600" style="display:none;"></canvas>
+          <script>
+            const BANK = ${JSON.stringify(QUESTION_BANK[subject])};
+            let queue = [], idx = 0, correct = 0;
+            const box = document.getElementById('examBox');
+            document.getElementById('easyBtn').onclick = ()=>start('easy');
+            document.getElementById('medBtn').onclick = ()=>start('medium');
+            document.getElementById('hardBtn').onclick = ()=>start('hard');
+
+            function start(diff){
+              queue = BANK.filter(q=>q.difficulty===diff).slice(0,30);
+              idx = 0; correct = 0;
+              renderQ();
+            }
+            function renderQ(){
+              if (idx >= queue.length){
+                const percent = Math.round((correct/queue.length)*100);
+                box.innerHTML = "<h3>Natija: "+correct+"/"+queue.length+" ("+percent+"%)</h3>";
+                // Send result to opener
+                try { window.opener.postMessage({type:'examResult', subject:'${subject}', difficulty: queue.length?queue[0].difficulty:'easy', percent}, location.origin); } catch(e){}
+                if (percent >= 70) {
+                  const fullName = prompt("Ism va familiyangizni kiriting:");
+                  drawCert('${SUBJECTS[subject]}', fullName, percent);
+                }
+                return;
+              }
+              const q = queue[idx];
+              box.innerHTML = "";
+              const div = document.createElement('div');
+              div.className = 'question';
+              const p = document.createElement('p');
+              p.textContent = (idx+1)+'. '+q.text;
+              div.appendChild(p);
+              const answers = document.createElement('div');
+              answers.className = 'answers';
+              q.options.forEach((opt,i)=>{
+                const id = 'ans_'+idx+'_'+i;
+                const label = document.createElement('label');
+                const input = document.createElement('input');
+                input.type='radio'; input.name='q_'+idx; input.value=i; input.id=id;
+                label.htmlFor=id; label.textContent=opt;
+                label.prepend(input);
+                answers.appendChild(label);
+              });
+              div.appendChild(answers);
+              const btn = document.createElement('button');
+              btn.textContent = 'Keyingi';
+              btn.onclick = ()=>{
+                const checked = document.querySelector('input[name="q_'+idx+'"]:checked');
+                if (checked && parseInt(checked.value,10) === q.answerIndex) correct++;
+                idx++; renderQ();
+              };
+              div.appendChild(btn);
+              box.appendChild(div);
+            }
+
+            function drawCert(subjectTitle, fullName, percent){
+              const c = document.getElementById('certCanvas');
+              c.style.display = 'block';
+              const ctx = c.getContext('2d');
+              ctx.fillStyle = "#001a10"; ctx.fillRect(0,0,c.width,c.height);
+              ctx.strokeStyle = "#00ff9c"; ctx.lineWidth = 8; ctx.strokeRect(20,20,c.width-40,c.height-40);
+              ctx.fillStyle = "#00ff9c";
+              ctx.font = "bold 48px Share Tech Mono";
+              ctx.fillText("CYBER-ACADEMY SERTIFIKATI", 180, 100);
+              ctx.font = "bold 36px Share Tech Mono";
+              ctx.fillText("Fan: "+subjectTitle, 180, 170);
+              ctx.fillText("Taqdir etiladi: "+(fullName||"Ism Familiya"), 180, 230);
+              ctx.font = "24px Share Tech Mono";
+              ctx.fillText("Natija: "+percent+"%", 180, 270);
+              ctx.fillText("Shart: Oson + O‘rta + Qiyin bosqichlardan ≥ 70%", 180, 310);
+              const d = new Date();
+              ctx.fillText("Sana: "+d.toLocaleDateString(), 180, 350);
+              ctx.fillText("Rahbar: SAYFIDDIN SA'DULLAYEV", 180, 390);
+              ctx.font = "bold 28px Share Tech Mono";
+              ctx.fillText("CYBER ACADEMY", 180, 450);
+            }
+          <\/script>
+        </body></html>
+      `);
+      win.document.close();
+    });
+  });
+
+  // ===== Track exam results in parent for certificate section eligibility =====
+  const PROGRESS_KEY = "CYBER_EXAMS_PROGRESS";
+  const progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || "{}");
+  window.addEventListener('message', (evt)=>{
+    if (!evt.data || evt.data.type!=='examResult') return;
+    const {subject, difficulty, percent} = evt.data;
+    if (!progress[subject]) progress[subject] = {};
+    progress[subject][difficulty] = percent;
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+    checkCertificateEligibility();
+  });
+
+  // ===== Certificate in main page (based on profile + 70% rule across all 3 difficulties) =====
+  const profileForm = document.getElementById('profileForm');
+  const certCanvas = document.getElementById('certificateCanvas');
+  const downloadBtn = document.getElementById('downloadCert');
+  const ctx = certCanvas.getContext('2d');
+  let profile = JSON.parse(localStorage.getItem("CYBER_PROFILE") || "null");
+
+  profileForm.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    const photoFile = document.getElementById('profilePhoto').files[0];
+    if (!firstName || !lastName || !photoFile) { alert("Iltimos, barcha maydonlarni to‘ldiring."); return; }
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      profile = { firstName, lastName, photoDataUrl: reader.result };
+      localStorage.setItem("CYBER_PROFILE", JSON.stringify(profile));
+      checkCertificateEligibility();
+    };
+    reader.readAsDataURL(photoFile);
+  });
+
+  function drawMainCertificate(subject){
+    ctx.fillStyle = "#001a10"; ctx.fillRect(0,0,certCanvas.width, certCanvas.height);
+    ctx.strokeStyle = "#00ff9c"; ctx.lineWidth = 8; ctx.strokeRect(20,20, certCanvas.width-40, certCanvas.height-40);
+    ctx.fillStyle = "#00ff9c";
+    ctx.font = "bold 48px Share Tech Mono";
+    ctx.fillText("CYBER-ACADEMY SERTIFIKATI", 140, 100);
+
+    ctx.font = "bold 36px Share Tech Mono";
+    ctx.fillText(`Fan: ${SUBJECTS[subject]}`, 140, 170);
+
+    const fullName = profile ? (profile.firstName+" "+profile.lastName) : "Ism Familiya";
+    ctx.fillText(`Taqdir etiladi: ${fullName}`, 140, 230);
+
+    ctx.font = "24px Share Tech Mono";
+    ctx.fillText("Shart: Oson + O‘rta + Qiyin bosqichlar bo‘yicha ≥ 70% natija", 140, 270);
+
+    const d = new Date();
+    ctx.fillText(`Sana: ${d.toLocaleDateString()}`, 140, 310);
+
+    ctx.fillText("Rahbar: SAYFIDDIN SA'DULLAYEV", 140, 350);
+    ctx.font = "bold 28px Share Tech Mono";
+    ctx.fillText("CYBER ACADEMY", 140, 400);
+
+    // Photo avatar
+    if (profile && profile.photoDataUrl) {
+      const img = new Image();
+      img.onload = ()=>{
+        const size = 180, x = certCanvas.width - size - 100, y = 120;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x+size/2, y+size/2, size/2, 0, Math.PI*2);
+        ctx.closePath(); ctx.clip();
+        ctx.drawImage(img, x, y, size, size);
+        ctx.restore();
+      };
+      img.src = profile.photoDataUrl;
+    }
+
+    downloadBtn.style.display = "inline-block";
+  }
+
+  function checkCertificateEligibility(){
+    // If user achieved >=70% across easy, medium, hard in any subject, draw certificate for that subject
+    for (const sub of Object.keys(SUBJECTS)) {
+      const s = progress[sub];
+      if (s && s.easy>=70 && s.medium>=70 && s.hard>=70) {
+        drawMainCertificate(sub);
+        return;
+      }
+    }
+    // Otherwise clear canvas
+    ctx.clearRect(0,0,certCanvas.width, certCanvas.height);
+    downloadBtn.style.display = "none";
+  }
+
+  downloadBtn.addEventListener('click', ()=>{
+    const link = document.createElement('a');
+    link.download = 'CYBER-ACADEMY-SERTIFIKAT.png';
+    link.href = certCanvas.toDataURL('image/png');
+    link.click();
+  });
+
+  window.addEventListener('load', ()=>{ checkCertificateEligibility(); });
+</script>
+</body>
+</html>
